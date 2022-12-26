@@ -1,0 +1,96 @@
+﻿@model WebApplication1.Models.Employee;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+
+<div class="container shadow p-5">
+    <div class="col mb-3">
+        @*<a asp-controller="Home" asp-action="Create" class="btn btn-lg btn-primary"><i class="bi bi-file-plus-fill"></i>Add Employee</a>*@
+        <a href="#popup" class="button" id="Add">Add</a>
+    </div>
+    <div id="popup" class="overlay">
+        <div class="wrapper">
+            <a href="#" class="close" id="close">&times;</a>
+            <div class="content">
+                <div class="container">
+                    <form method="post" asp-controller="Home" asp-action="CreateOrUpdate">
+                    <br/>
+                    <input id="EmpId" asp-for="Id" type="text" hidden/>
+                    <br />
+                        <label asp-for="Name"> Name</label>
+                    <input id="empName" asp-for="Name" type="text"/>
+                    <br />
+                        <label asp-for="email"> Email</label>
+                        <input id="EmpEmail" asp-for="email" type="text" />
+                    <br/>
+                        <input type="submit" class="btn btn-lg btn-primary" value="Submit" />
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.deserializedlistobj)
+            {
+                <form method="post">
+                <tr>
+                    <td width="20%">
+                        <span>@item.Name</span>
+                        <input id="hdnInputID" type="text" value="@item.Id" hidden />
+                    </td>
+                    <td width="20%">
+                        <span>@item.email</span>
+                    </td>
+                    <td width="20%">
+                        <input onclick="openPopup(@item.Id)" id="EditEmp" type="button" value="Edit" />
+                        @*<a asp-controller="Home" asp-action="Edit" asp-route-id="@item.Id" id="Edit">Edit</a>*@
+                        <a asp-controller="Home" asp-action="GetIdToDelete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+                </form>
+            }
+        </tbody>
+    </table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+                
+        function openPopup(id) {
+            $('#Add')[0].click();
+            var obj = {
+                Id : id
+            };
+            $.ajax({
+                url: "/Home/Edit",
+                method: "POST",
+                data: obj,
+                async: true,
+                success: function (data) {
+                    data = JSON.parse(data);
+                    $("#EmpId").val(data.Id);
+                    $("#empName").val(data.Name);
+                    $("#EmpEmail").val(data.email);
+                    console.log(data);
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+        }
+    </script>
+}
